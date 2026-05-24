@@ -14,9 +14,6 @@ import { Route as SimpleRouteImport } from './routes/simple'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PagesRouterWeatherRouteImport } from './routes/pages-router.weather'
-import { Route as PagesRouterSimpleRouteImport } from './routes/pages-router.simple'
-import { Route as PagesRouterNewsRouteImport } from './routes/pages-router.news'
 
 const WeatherRoute = WeatherRouteImport.update({
   id: '/weather',
@@ -43,21 +40,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PagesRouterWeatherRoute = PagesRouterWeatherRouteImport.update({
-  id: '/pages-router/weather',
-  path: '/pages-router/weather',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagesRouterSimpleRoute = PagesRouterSimpleRouteImport.update({
-  id: '/pages-router/simple',
-  path: '/pages-router/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagesRouterNewsRoute = PagesRouterNewsRouteImport.update({
-  id: '/pages-router/news',
-  path: '/pages-router/news',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,9 +47,6 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/simple': typeof SimpleRoute
   '/weather': typeof WeatherRoute
-  '/pages-router/news': typeof PagesRouterNewsRoute
-  '/pages-router/simple': typeof PagesRouterSimpleRoute
-  '/pages-router/weather': typeof PagesRouterWeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,9 +54,6 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/simple': typeof SimpleRoute
   '/weather': typeof WeatherRoute
-  '/pages-router/news': typeof PagesRouterNewsRoute
-  '/pages-router/simple': typeof PagesRouterSimpleRoute
-  '/pages-router/weather': typeof PagesRouterWeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,41 +62,13 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/simple': typeof SimpleRoute
   '/weather': typeof WeatherRoute
-  '/pages-router/news': typeof PagesRouterNewsRoute
-  '/pages-router/simple': typeof PagesRouterSimpleRoute
-  '/pages-router/weather': typeof PagesRouterWeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/about'
-    | '/news'
-    | '/simple'
-    | '/weather'
-    | '/pages-router/news'
-    | '/pages-router/simple'
-    | '/pages-router/weather'
+  fullPaths: '/' | '/about' | '/news' | '/simple' | '/weather'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/about'
-    | '/news'
-    | '/simple'
-    | '/weather'
-    | '/pages-router/news'
-    | '/pages-router/simple'
-    | '/pages-router/weather'
-  id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/news'
-    | '/simple'
-    | '/weather'
-    | '/pages-router/news'
-    | '/pages-router/simple'
-    | '/pages-router/weather'
+  to: '/' | '/about' | '/news' | '/simple' | '/weather'
+  id: '__root__' | '/' | '/about' | '/news' | '/simple' | '/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -129,9 +77,6 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   SimpleRoute: typeof SimpleRoute
   WeatherRoute: typeof WeatherRoute
-  PagesRouterNewsRoute: typeof PagesRouterNewsRoute
-  PagesRouterSimpleRoute: typeof PagesRouterSimpleRoute
-  PagesRouterWeatherRoute: typeof PagesRouterWeatherRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,27 +116,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pages-router/weather': {
-      id: '/pages-router/weather'
-      path: '/pages-router/weather'
-      fullPath: '/pages-router/weather'
-      preLoaderRoute: typeof PagesRouterWeatherRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pages-router/simple': {
-      id: '/pages-router/simple'
-      path: '/pages-router/simple'
-      fullPath: '/pages-router/simple'
-      preLoaderRoute: typeof PagesRouterSimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pages-router/news': {
-      id: '/pages-router/news'
-      path: '/pages-router/news'
-      fullPath: '/pages-router/news'
-      preLoaderRoute: typeof PagesRouterNewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -201,9 +125,6 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   SimpleRoute: SimpleRoute,
   WeatherRoute: WeatherRoute,
-  PagesRouterNewsRoute: PagesRouterNewsRoute,
-  PagesRouterSimpleRoute: PagesRouterSimpleRoute,
-  PagesRouterWeatherRoute: PagesRouterWeatherRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

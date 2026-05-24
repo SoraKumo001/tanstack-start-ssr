@@ -34,9 +34,9 @@ function App() {
         </div>
       </section>
 
-      {/* App Router Section */}
+      {/* Samples Section */}
       <section className="mt-8">
-        <h2 className="text-2xl font-bold text-[var(--sea-ink)] mb-4">App Router (TanStack Start Routes)</h2>
+        <h2 className="text-2xl font-bold text-[var(--sea-ink)] mb-4">Available Samples</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
             ['/news', 'News Sample', 'Hacker News API implementation with custom page sizes and individual story reload.'],
@@ -47,30 +47,6 @@ function App() {
               key={to}
               to={to}
               className="island-shell feature-card rise-in rounded-2xl p-5 hover:-translate-y-1 transition duration-300 group cursor-pointer no-underline block"
-            >
-              <h3 className="mb-2 text-base font-bold text-[var(--sea-ink)] group-hover:text-[var(--lagoon-deep)] flex items-center justify-between">
-                <span>{title}</span>
-                <span className="text-xs border border-[var(--chip-line)] bg-[var(--chip-bg)] rounded-full px-2.5 py-0.5 text-[var(--sea-ink-soft)] font-mono">{to}</span>
-              </h3>
-              <p className="m-0 text-sm text-[var(--sea-ink-soft)]">{desc}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Pages Router Section */}
-      <section className="mt-8">
-        <h2 className="text-2xl font-bold text-[var(--sea-ink)] mb-4">Pages Router (Mapped Routes)</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            ['/pages-router/news', 'News Sample (Pages)', 'Hacker News API pages router emulation routing.'],
-            ['/pages-router/weather', 'Weather Sample (Pages)', 'JMA weather forecast pages router emulation routing.'],
-            ['/pages-router/simple', 'Simple Sample (Pages)', 'Minimal Hello World pages router emulation routing.'],
-          ].map(([to, title, desc]) => (
-            <Link
-              key={to}
-              to={to}
-              className="island-shell feature-card rise-in rounded-2xl p-5 hover:-translate-y-1 transition duration-300 group cursor-pointer no-underline block opacity-85"
             >
               <h3 className="mb-2 text-base font-bold text-[var(--sea-ink)] group-hover:text-[var(--lagoon-deep)] flex items-center justify-between">
                 <span>{title}</span>
