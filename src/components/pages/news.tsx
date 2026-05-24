@@ -17,12 +17,16 @@ export interface NewsType {
   text?: string
 }
 
+type NewsSearch = {
+  page?: number
+}
+
 export const newsFetchServer = createServerFn({ method: 'GET' })
-  .handler(async (ctx) => {
-    const id = (ctx as any).data as number
+  .inputValidator((input: number) => input)
+  .handler(async ({ data: id }) => {
     const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
     if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
-    const data = await r.json()
+    const data = (await r.json()) as NewsType
     return new Promise<NewsType>((resolve) => setTimeout(() => resolve(data), FETCH_WAIT))
   })
 
@@ -44,7 +48,7 @@ export const newsLoader = async (page: number) => {
     const newsItems = await Promise.all(
       targetIds.map(async (id) => {
         try {
-          const item = await newsFetchServer({ data: id } as any)
+          const item = await newsFetchServer({ data: id })
           return { id, data: item, error: null }
         } catch (e) {
           return { id, data: null, error: (e as Error).message }
@@ -88,7 +92,7 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
     setIsLoading(true)
     setError(null)
     try {
-      const res = await newsFetchServer({ data: id } as any)
+      const res = await newsFetchServer({ data: id })
       setData(res)
     } catch (e) {
       setError((e as Error).message)
@@ -156,7 +160,7 @@ export default function NewsPage({ initialData, page }: NewsPageProps) {
   const navigateToPage = (newPage: number) => {
     router.navigate({
       to: '.',
-      search: (prev: any) => ({ ...prev, page: newPage }),
+      search: (prev: NewsSearch) => ({ ...prev, page: newPage }),
     })
   }
 

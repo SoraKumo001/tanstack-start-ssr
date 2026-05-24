@@ -12,24 +12,28 @@ export interface WeatherType {
 export const FETCH_CODES = [120000, 130000, 140000]
 
 export const fetchWeatherServer = createServerFn({ method: 'GET' })
-  .handler(async (ctx) => {
-    const id = (ctx as any).data as number
-    const r = await fetch(`https://www.jma.go.jp/bosai/forecast/data/overview_forecast/${id}.json`)
+  .inputValidator((input: number) => input)
+  .handler(async ({ data: id }) => {
+    const r = await fetch(
+      `https://www.jma.go.jp/bosai/forecast/data/overview_forecast/${id}.json`,
+    )
     if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
-    const data = await r.json()
-    return new Promise<WeatherType>((resolve) => setTimeout(() => resolve(data), 500))
+    const data = (await r.json()) as WeatherType
+    return new Promise<WeatherType>((resolve) =>
+      setTimeout(() => resolve(data), 500),
+    )
   })
 
 export const weatherLoader = async () => {
   const results = await Promise.all(
     FETCH_CODES.map(async (code) => {
       try {
-        const data = await fetchWeatherServer({ data: code } as any)
+        const data = await fetchWeatherServer({ data: code })
         return { code, data, error: null }
       } catch (e) {
         return { code, data: null, error: (e as Error).message }
       }
-    })
+    }),
   )
   return results
 }
@@ -38,7 +42,15 @@ export interface WeatherProps {
   initialData: Awaited<ReturnType<typeof weatherLoader>>
 }
 
-function WeatherCard({ code, initialData, initialError }: { code: number; initialData: WeatherType | null; initialError: string | null }) {
+function WeatherCard({
+  code,
+  initialData,
+  initialError,
+}: {
+  code: number
+  initialData: WeatherType | null
+  initialError: string | null
+}) {
   const [data, setData] = useState<WeatherType | null>(initialData)
   const [error, setError] = useState<string | null>(initialError)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,7 +64,7 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
     setIsLoading(true)
     setError(null)
     try {
-      const res = await fetchWeatherServer({ data: code } as any)
+      const res = await fetchWeatherServer({ data: code })
       setData(res)
     } catch (e) {
       setError((e as Error).message)
@@ -65,10 +77,14 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
     return (
       <div className="island-shell p-6 rounded-2xl border border-red-300 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 flex flex-col justify-between">
         <div>
-          <h2 className="text-xl font-bold mb-2 text-red-700 dark:text-red-400">Area Code: {code}</h2>
-          <p className="text-sm text-red-600 dark:text-red-400 mb-4">Error loading weather: {error}</p>
+          <h2 className="text-xl font-bold mb-2 text-red-700 dark:text-red-400">
+            Area Code: {code}
+          </h2>
+          <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+            Error loading weather: {error}
+          </p>
         </div>
-        <button 
+        <button
           onClick={handleReload}
           className="self-start rounded-full border border-red-300 dark:border-red-900 bg-red-100 dark:bg-red-900/40 px-4 py-2 text-xs font-semibold text-red-700 dark:text-red-300 transition hover:bg-red-200 dark:hover:bg-red-900/60"
         >
@@ -81,7 +97,9 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
   if (!data) {
     return (
       <div className="island-shell p-6 rounded-2xl flex items-center justify-center min-h-[200px]">
-        <div className="text-[var(--sea-ink-soft)] font-medium animate-pulse">Loading...</div>
+        <div className="text-[var(--sea-ink-soft)] font-medium animate-pulse">
+          Loading...
+        </div>
       </div>
     )
   }
@@ -89,7 +107,7 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
   const { targetArea, reportDatetime, headlineText, text } = data
 
   return (
-    <div 
+    <div
       className={`island-shell p-6 rounded-[1.5rem] flex flex-col justify-between transition-all duration-300 ${
         isLoading ? 'opacity-60 saturate-50' : ''
       }`}
@@ -104,8 +122,10 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
       )}
       <div>
         <div className="flex justify-between items-start mb-2">
-          <h2 className="text-2xl font-bold text-[var(--sea-ink)]">{targetArea}</h2>
-          <button 
+          <h2 className="text-2xl font-bold text-[var(--sea-ink)]">
+            {targetArea}
+          </h2>
+          <button
             onClick={handleReload}
             disabled={isLoading}
             className="rounded-full border border-[rgba(50,143,151,0.25)] bg-[rgba(79,184,178,0.08)] px-3 py-1.5 text-xs font-semibold text-[var(--lagoon-deep)] transition hover:bg-[rgba(79,184,178,0.18)] disabled:opacity-50"
@@ -118,8 +138,12 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
             timeZone: 'JST',
           })}
         </div>
-        <div className="font-semibold text-sm mb-3 text-[var(--sea-ink)]">{headlineText}</div>
-        <div className="text-sm whitespace-pre-wrap text-[var(--sea-ink-soft)] leading-relaxed">{text}</div>
+        <div className="font-semibold text-sm mb-3 text-[var(--sea-ink)]">
+          {headlineText}
+        </div>
+        <div className="text-sm whitespace-pre-wrap text-[var(--sea-ink-soft)] leading-relaxed">
+          {text}
+        </div>
       </div>
     </div>
   )
@@ -133,7 +157,8 @@ export default function WeatherPage({ initialData }: WeatherProps) {
           Weather Forecast
         </h1>
         <p className="text-base text-[var(--sea-ink-soft)] sm:text-lg">
-          Data obtained from the JMA (Japan Meteorological Agency) website. (SSR + Client-side Server Function reloading)
+          Data obtained from the JMA (Japan Meteorological Agency) website. (SSR
+          + Client-side Server Function reloading)
         </p>
       </section>
 
