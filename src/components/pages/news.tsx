@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 
 const FETCH_WAIT = 50
 export const PAGE_SIZE = 30
@@ -16,25 +17,26 @@ export interface NewsType {
   text?: string
 }
 
-export const newsFetch = async (id: number): Promise<NewsType> => {
-  const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
-  if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
-  const data = await r.json()
-  return new Promise<NewsType>((resolve) => setTimeout(() => resolve(data), FETCH_WAIT))
-}
+export const newsFetchServer = createServerFn({ method: 'GET' })
+  .handler(async (ctx) => {
+    const id = (ctx as any).data as number
+    const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
+    const data = await r.json()
+    return new Promise<NewsType>((resolve) => setTimeout(() => resolve(data), FETCH_WAIT))
+  })
 
-export const newsListFetch = (): Promise<number[]> => {
-  return fetch(`https://hacker-news.firebaseio.com/v0/topstories.json`)
-    .then((v) => {
-      if (!v.ok) throw new Error(`HTTP error! status: ${v.status}`)
-      return v.json()
-    })
-    .then((v) => new Promise<number[]>((resolve) => setTimeout(() => resolve(v), FETCH_WAIT)))
-}
+export const newsListFetchServer = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    const v = await fetch(`https://hacker-news.firebaseio.com/v0/topstories.json`)
+    if (!v.ok) throw new Error(`HTTP error! status: ${v.status}`)
+    const data = await v.json()
+    return new Promise<number[]>((resolve) => setTimeout(() => resolve(data), FETCH_WAIT))
+  })
 
 export const newsLoader = async (page: number) => {
   try {
-    const allIds = await newsListFetch()
+    const allIds = await newsListFetchServer()
     const maxPage = Math.max(1, Math.floor(allIds.length / PAGE_SIZE))
     const currentPage = Math.min(Math.max(1, page), maxPage)
     const targetIds = allIds.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -42,7 +44,7 @@ export const newsLoader = async (page: number) => {
     const newsItems = await Promise.all(
       targetIds.map(async (id) => {
         try {
-          const item = await newsFetch(id)
+          const item = await newsFetchServer({ data: id } as any)
           return { id, data: item, error: null }
         } catch (e) {
           return { id, data: null, error: (e as Error).message }
@@ -86,7 +88,7 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
     setIsLoading(true)
     setError(null)
     try {
-      const res = await newsFetch(id)
+      const res = await newsFetchServer({ data: id } as any)
       setData(res)
     } catch (e) {
       setError((e as Error).message)
@@ -153,6 +155,7 @@ export default function NewsPage({ initialData, page }: NewsPageProps) {
 
   const navigateToPage = (newPage: number) => {
     router.navigate({
+      to: '.',
       search: (prev: any) => ({ ...prev, page: newPage }),
     })
   }
@@ -167,7 +170,7 @@ export default function NewsPage({ initialData, page }: NewsPageProps) {
             Hacker News
           </h1>
           <p className="text-sm text-[var(--sea-ink-soft)]">
-            Hacker News SSR demonstration with custom page size and lazy item loading.
+            Hacker News SSR demonstration with custom page size and server function loading.
           </p>
         </div>
         

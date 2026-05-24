@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createServerFn } from '@tanstack/react-start'
 
 export interface WeatherType {
   publishingOffice: string
@@ -10,21 +11,20 @@ export interface WeatherType {
 
 export const FETCH_CODES = [120000, 130000, 140000]
 
-export const fetchWeather = (id: number): Promise<WeatherType> =>
-  fetch(`https://www.jma.go.jp/bosai/forecast/data/overview_forecast/${id}.json`)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
-      return r.json()
-    })
-    .then(
-      (r) => new Promise<WeatherType>((resolve) => setTimeout(() => resolve(r), 500))
-    )
+export const fetchWeatherServer = createServerFn({ method: 'GET' })
+  .handler(async (ctx) => {
+    const id = (ctx as any).data as number
+    const r = await fetch(`https://www.jma.go.jp/bosai/forecast/data/overview_forecast/${id}.json`)
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`)
+    const data = await r.json()
+    return new Promise<WeatherType>((resolve) => setTimeout(() => resolve(data), 500))
+  })
 
 export const weatherLoader = async () => {
   const results = await Promise.all(
     FETCH_CODES.map(async (code) => {
       try {
-        const data = await fetchWeather(code)
+        const data = await fetchWeatherServer({ data: code } as any)
         return { code, data, error: null }
       } catch (e) {
         return { code, data: null, error: (e as Error).message }
@@ -52,7 +52,7 @@ function WeatherCard({ code, initialData, initialError }: { code: number; initia
     setIsLoading(true)
     setError(null)
     try {
-      const res = await fetchWeather(code)
+      const res = await fetchWeatherServer({ data: code } as any)
       setData(res)
     } catch (e) {
       setError((e as Error).message)
@@ -133,7 +133,7 @@ export default function WeatherPage({ initialData }: WeatherProps) {
           Weather Forecast
         </h1>
         <p className="text-base text-[var(--sea-ink-soft)] sm:text-lg">
-          Data obtained from the JMA (Japan Meteorological Agency) website. (SSR + Client-side reloading)
+          Data obtained from the JMA (Japan Meteorological Agency) website. (SSR + Client-side Server Function reloading)
         </p>
       </section>
 
