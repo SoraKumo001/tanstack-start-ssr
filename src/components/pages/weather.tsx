@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface WeatherType {
   publishingOffice: string
@@ -169,7 +170,7 @@ function WeatherCards({
 }
 
 export default function WeatherPage({ initialData }: WeatherProps) {
-  const router = useRouter()
+  const queryClient = useQueryClient()
   const [refreshingCodes, setRefreshingCodes] = useState<
     Record<number, boolean>
   >({})
@@ -178,7 +179,7 @@ export default function WeatherPage({ initialData }: WeatherProps) {
     setRefreshingCodes((prev) => ({ ...prev, [code]: true }))
     try {
       await Promise.all([
-        router.invalidate(),
+        queryClient.invalidateQueries({ queryKey: ['weather'] }),
         new Promise((resolve) => setTimeout(resolve, 400)),
       ])
     } finally {
