@@ -108,7 +108,7 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
 
   if (error) {
     return (
-      <div className="py-3 border-b border-[var(--line)]">
+      <div className="py-3 border-b border-(--line)">
         <div className="flex gap-2 items-center text-sm text-red-500">
           <span>Failed to load news {id}: {error}</span>
           <button 
@@ -132,7 +132,7 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
         <button 
           onClick={handleReload}
           disabled={isLoading}
-          className="flex-shrink-0 rounded border border-[var(--chip-line)] bg-[var(--chip-bg)] px-2 py-0.5 text-xs font-medium text-[var(--sea-ink)] hover:bg-[var(--link-bg-hover)] transition disabled:opacity-50"
+          className="shrink-0 rounded border border-(--chip-line) bg-(--chip-bg) px-2 py-0.5 text-xs font-medium text-(--sea-ink) hover:bg-(--link-bg-hover) transition disabled:opacity-50"
         >
           {isLoading ? '...' : 'Reload'}
         </button>
@@ -140,13 +140,13 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
           href={url} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-base font-semibold text-[var(--sea-ink)] hover:text-[var(--lagoon-deep)] transition decoration-[var(--chip-line)] underline-offset-4"
+          className="text-base font-semibold text-(--sea-ink) hover:text-(--lagoon-deep) transition decoration-(--chip-line) underline-offset-4"
         >
           {title}
         </a>
       </div>
-      <div className="text-xs text-[var(--sea-ink-soft)] pl-16">
-        {score} points by <span className="font-semibold text-[var(--sea-ink)]">{by}</span> | {new Date(time * 1000).toLocaleString('en-US', { timeZone: 'UTC' })} UTC | {descendants} comments
+      <div className="text-xs text-(--sea-ink-soft) pl-16">
+        {score} points by <span className="font-semibold text-(--sea-ink)">{by}</span> | {new Date(time * 1000).toLocaleString('en-US', { timeZone: 'UTC' })} UTC | {descendants} comments
       </div>
     </div>
   )
@@ -177,10 +177,10 @@ export default function NewsPage({ initialData, page, onReload, isRefreshing }: 
     <main className="page-wrap px-4 pb-8 pt-14">
       <section className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="display-title mb-1.5 text-4xl font-bold tracking-tight text-[var(--sea-ink)] sm:text-5xl">
+          <h1 className="display-title mb-1.5 text-4xl font-bold tracking-tight text-(--sea-ink) sm:text-5xl">
             Hacker News
           </h1>
-          <p className="text-sm text-[var(--sea-ink-soft)]">
+          <p className="text-sm text-(--sea-ink-soft)">
             Hacker News SSR demonstration with custom page size and server function loading.
           </p>
         </div>
@@ -189,26 +189,26 @@ export default function NewsPage({ initialData, page, onReload, isRefreshing }: 
           <button 
             onClick={handleReloadAll}
             disabled={refreshing}
-            className="rounded-full bg-[rgba(79,184,178,0.12)] border border-[rgba(50,143,151,0.25)] px-4 py-2 text-sm font-semibold text-[var(--lagoon-deep)] transition hover:bg-[rgba(79,184,178,0.22)] disabled:opacity-50"
+            className="rounded-full bg-[rgba(79,184,178,0.12)] border border-[rgba(50,143,151,0.25)] px-4 py-2 text-sm font-semibold text-(--lagoon-deep) transition hover:bg-[rgba(79,184,178,0.22)] disabled:opacity-50"
           >
             {refreshing ? 'Reloading...' : 'Reload All'}
           </button>
           
-          <div className="flex items-center gap-1 border border-[var(--line)] rounded-full bg-[var(--chip-bg)] p-1">
+          <div className="flex items-center gap-1 border border-(--line) rounded-full bg-(--chip-bg) p-1">
             <button 
               disabled={page <= 1}
               onClick={() => navigateToPage(Math.max(1, page - 1))}
-              className="rounded-full px-3 py-1 text-xs font-semibold text-[var(--sea-ink)] hover:bg-[var(--link-bg-hover)] transition disabled:opacity-30"
+              className="rounded-full px-3 py-1 text-xs font-semibold text-(--sea-ink) hover:bg-(--link-bg-hover) transition disabled:opacity-30"
             >
               Prev
             </button>
-            <span className="text-xs font-medium text-[var(--sea-ink)] px-2">
+            <span className="text-xs font-medium text-(--sea-ink) px-2">
               {page} / {maxPage}
             </span>
             <button 
               disabled={page >= maxPage}
               onClick={() => navigateToPage(Math.min(maxPage, page + 1))}
-              className="rounded-full px-3 py-1 text-xs font-semibold text-[var(--sea-ink)] hover:bg-[var(--link-bg-hover)] transition disabled:opacity-30"
+              className="rounded-full px-3 py-1 text-xs font-semibold text-(--sea-ink) hover:bg-(--link-bg-hover) transition disabled:opacity-30"
             >
               Next
             </button>
@@ -222,9 +222,9 @@ export default function NewsPage({ initialData, page, onReload, isRefreshing }: 
         </div>
       )}
 
-      <section className="island-shell p-6 sm:p-8 rounded-[2rem]">
+      <section className="island-shell p-6 sm:p-8 rounded-4xl">
         {newsItems.length === 0 && !error ? (
-          <div className="text-center py-12 text-[var(--sea-ink-soft)] font-medium">
+          <div className="text-center py-12 text-(--sea-ink-soft) font-medium">
             No stories found.
           </div>
         ) : (

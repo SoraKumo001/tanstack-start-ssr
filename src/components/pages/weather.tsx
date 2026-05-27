@@ -74,7 +74,7 @@ function WeatherReloadButton({
     <button
       onClick={onReload}
       disabled={isLoading}
-      className="rounded-full border border-[rgba(50,143,151,0.25)] bg-[rgba(79,184,178,0.08)] px-3 py-1.5 text-xs font-semibold text-[var(--lagoon-deep)] transition hover:bg-[rgba(79,184,178,0.18)] disabled:opacity-50"
+      className="rounded-full border border-[rgba(50,143,151,0.25)] bg-[rgba(79,184,178,0.08)] px-3 py-1.5 text-xs font-semibold text-(--lagoon-deep) transition hover:bg-[rgba(79,184,178,0.18)] disabled:opacity-50"
       aria-label={`Reload weather for area ${code}`}
     >
       {isLoading ? 'Reloading...' : label}
@@ -122,9 +122,9 @@ function WeatherCards({
           return (
             <div
               key={code}
-              className="island-shell p-6 rounded-2xl flex items-center justify-center min-h-[200px]"
+              className="island-shell p-6 rounded-2xl flex items-center justify-center min-h-50"
             >
-              <div className="text-[var(--sea-ink-soft)] font-medium animate-pulse">
+              <div className="text-(--sea-ink-soft) font-medium animate-pulse">
                 Loading...
               </div>
             </div>
@@ -136,11 +136,11 @@ function WeatherCards({
         return (
           <div
             key={code}
-            className="island-shell p-6 rounded-[1.5rem] flex flex-col justify-between transition-all duration-300"
+            className="island-shell p-6 rounded-3xl flex flex-col justify-between transition-all duration-300"
           >
             <div>
               <div className="flex justify-between items-start gap-4 mb-2">
-                <h2 className="text-2xl font-bold text-[var(--sea-ink)]">
+                <h2 className="text-2xl font-bold text-(--sea-ink)">
                   {targetArea}
                 </h2>
                 <WeatherReloadButton
@@ -150,15 +150,15 @@ function WeatherCards({
                   onReload={() => onReload(code)}
                 />
               </div>
-              <div className="text-xs text-[var(--sea-ink-soft)] mb-4">
+              <div className="text-xs text-(--sea-ink-soft) mb-4">
                 {new Date(reportDatetime).toLocaleString('ja-JP', {
                   timeZone: 'JST',
                 })}
               </div>
-              <div className="font-semibold text-sm mb-3 text-[var(--sea-ink)]">
+              <div className="font-semibold text-sm mb-3 text-(--sea-ink)">
                 {headlineText}
               </div>
-              <div className="text-sm whitespace-pre-wrap text-[var(--sea-ink-soft)] leading-relaxed">
+              <div className="text-sm whitespace-pre-wrap text-(--sea-ink-soft) leading-relaxed">
                 {text}
               </div>
             </div>
@@ -190,10 +190,10 @@ export default function WeatherPage({ initialData }: WeatherProps) {
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
       <section className="mb-8">
-        <h1 className="display-title mb-3 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-[var(--sea-ink)] sm:text-5xl">
+        <h1 className="display-title mb-3 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-(--sea-ink) sm:text-5xl">
           Weather Forecast
         </h1>
-        <p className="text-base text-[var(--sea-ink-soft)] sm:text-lg">
+        <p className="text-base text-(--sea-ink-soft) sm:text-lg">
           Data obtained from the JMA (Japan Meteorological Agency) website.
         </p>
       </section>
