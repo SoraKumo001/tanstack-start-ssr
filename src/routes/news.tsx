@@ -27,5 +27,5 @@ function NewsRouteComponent() {
 
   if (!data) return null
 
-  return <NewsPage initialData={data} page={currentPage} />
+  return <NewsPage news={data} page={currentPage} />
 }

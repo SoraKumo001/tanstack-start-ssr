@@ -83,7 +83,7 @@ export const newsLoaderServer = createServerFn({ method: 'GET' })
   })
 
 export interface NewsPageProps {
-  initialData: Awaited<ReturnType<typeof newsLoaderServer>>
+  news: Awaited<ReturnType<typeof newsLoaderServer>>
   page: number
   onReload?: () => Promise<void>
   isRefreshing?: boolean
@@ -91,21 +91,21 @@ export interface NewsPageProps {
 
 function NewsCard({
   id,
-  initialData,
-  initialError,
+  story,
+  storyError,
 }: {
   id: number
-  initialData: NewsType | null
-  initialError: string | null
+  story: NewsType | null
+  storyError: string | null
 }) {
-  const [data, setData] = useState<NewsType | null>(initialData)
-  const [error, setError] = useState<string | null>(initialError)
+  const [data, setData] = useState<NewsType | null>(story)
+  const [error, setError] = useState<string | null>(storyError)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setData(initialData)
-    setError(initialError)
-  }, [initialData, initialError])
+    setData(story)
+    setError(storyError)
+  }, [story, storyError])
 
   const handleReload = async () => {
     setIsLoading(true)
@@ -174,18 +174,24 @@ function NewsCard({
 }
 
 export default function NewsPage({
-  initialData,
+  news,
   page,
   onReload,
   isRefreshing,
 }: NewsPageProps) {
   const router = useRouter()
+  const [isReloadingAll, setIsReloadingAll] = useState(false)
 
   const handleReloadAll = async () => {
-    if (onReload) {
-      await onReload()
-    } else {
-      await router.invalidate()
+    setIsReloadingAll(true)
+    try {
+      if (onReload) {
+        await onReload()
+      } else {
+        await router.invalidate()
+      }
+    } finally {
+      setIsReloadingAll(false)
     }
   }
 
@@ -196,8 +202,8 @@ export default function NewsPage({
     })
   }
 
-  const { newsItems, maxPage, error } = initialData
-  const refreshing = isRefreshing ?? router.state.status === 'pending'
+  const { newsItems, maxPage, error } = news
+  const refreshing = isRefreshing ?? isReloadingAll
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
@@ -262,8 +268,8 @@ export default function NewsPage({
               <NewsCard
                 key={id}
                 id={id}
-                initialData={data}
-                initialError={itemError}
+                story={data}
+                storyError={itemError}
               />
             ))}
           </div>

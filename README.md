@@ -45,7 +45,7 @@ This project has removed the complex React Server Components (RSC) configuration
 - **Wrapped with `SSRProvider`**:  
   In `src/routes/__root.tsx`, the entire application tree is wrapped under `<QueryClientProvider>` and `<SSRProvider>`. This automatically serializes the data fetched on the server and transfers the state seamlessly to the client side.
 - **Seamless Fetching with `enableSSR`**:  
-  By spreading the `enableSSR` options within the `useQuery` hooks inside components, queries are automatically evaluated and fetched on the server side during SSR. The client hydrates this state without doing duplicate fetches, eliminating the need to write router `loader` functions.
+  By spreading the `enableSSR` options within the `useQuery` hooks inside components, queries are automatically evaluated and fetched on the server side during SSR. The client hydrates this state without doing duplicate fetches, reducing the need for route-level `prefetchQuery`, `dehydrate`, and `HydrationBoundary` boilerplate.
 
 ---
 
@@ -88,7 +88,7 @@ A Japanese Meteorological Agency (JMA) weather forecasting demonstration.
     queryFn: () => weatherLoader(),
   })
   ```
-  Just like the news page, combining `useQuery` and `enableSSR` creates a fully SSR-rendered HTML shell for the user. When users trigger the individual reload button, the query refetches on the client side to update specific items cleanly.
+  Just like the news page, combining `useQuery` and `enableSSR` creates a fully SSR-rendered HTML shell for the user. When users trigger the reload-all button, the weather query is invalidated and refetched on the client side.
 
 ---
 

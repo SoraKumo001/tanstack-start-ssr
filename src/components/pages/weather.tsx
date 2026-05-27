@@ -55,16 +55,14 @@ export const weatherLoader = async () => {
 }
 
 export interface WeatherProps {
-  initialData: Awaited<ReturnType<typeof weatherLoader>>
+  forecasts: Awaited<ReturnType<typeof weatherLoader>>
 }
 
 function WeatherReloadButton({
-  code,
   label,
   isLoading,
   onReload,
 }: {
-  code: number
   label: string
   isLoading: boolean
   onReload: () => Promise<void>
@@ -74,7 +72,7 @@ function WeatherReloadButton({
       onClick={onReload}
       disabled={isLoading}
       className="rounded-full border border-[rgba(50,143,151,0.25)] bg-[rgba(79,184,178,0.08)] px-3 py-1.5 text-xs font-semibold text-(--lagoon-deep) transition hover:bg-[rgba(79,184,178,0.18)] disabled:opacity-50"
-      aria-label={`Reload weather for area ${code}`}
+      aria-label="Reload all weather forecasts"
     >
       {isLoading ? 'Reloading...' : label}
     </button>
@@ -83,12 +81,8 @@ function WeatherReloadButton({
 
 function WeatherCards({
   results,
-  refreshingCodes,
-  onReload,
 }: {
   results: Array<WeatherResult>
-  refreshingCodes: Record<number, boolean>
-  onReload: (code: number) => Promise<void>
 }) {
   return (
     <section className="grid gap-6 sm:grid-cols-1 md:grid-cols-3">
@@ -107,12 +101,6 @@ function WeatherCards({
                   Error loading weather: {error}
                 </p>
               </div>
-              <WeatherReloadButton
-                code={code}
-                label="Retry"
-                isLoading={!!refreshingCodes[code]}
-                onReload={() => onReload(code)}
-              />
             </div>
           )
         }
@@ -142,12 +130,6 @@ function WeatherCards({
                 <h2 className="text-2xl font-bold text-(--sea-ink)">
                   {targetArea}
                 </h2>
-                <WeatherReloadButton
-                  code={code}
-                  label="Reload"
-                  isLoading={!!refreshingCodes[code]}
-                  onReload={() => onReload(code)}
-                />
               </div>
               <div className="text-xs text-(--sea-ink-soft) mb-4">
                 {new Date(reportDatetime).toLocaleString('ja-JP', {
@@ -168,40 +150,41 @@ function WeatherCards({
   )
 }
 
-export default function WeatherPage({ initialData }: WeatherProps) {
+export default function WeatherPage({ forecasts }: WeatherProps) {
   const queryClient = useQueryClient()
-  const [refreshingCodes, setRefreshingCodes] = useState<
-    Record<number, boolean>
-  >({})
+  const [refreshing, setRefreshing] = useState(false)
 
-  const handleReload = async (code: number) => {
-    setRefreshingCodes((prev) => ({ ...prev, [code]: true }))
+  const handleReload = async () => {
+    setRefreshing(true)
     try {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['weather'] }),
         new Promise((resolve) => setTimeout(resolve, 400)),
       ])
     } finally {
-      setRefreshingCodes((prev) => ({ ...prev, [code]: false }))
+      setRefreshing(false)
     }
   }
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
-      <section className="mb-8">
-        <h1 className="display-title mb-3 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-(--sea-ink) sm:text-5xl">
-          Weather Forecast
-        </h1>
-        <p className="text-base text-(--sea-ink-soft) sm:text-lg">
-          Data obtained from the JMA (Japan Meteorological Agency) website.
-        </p>
+      <section className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="display-title mb-3 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-(--sea-ink) sm:text-5xl">
+            Weather Forecast
+          </h1>
+          <p className="text-base text-(--sea-ink-soft) sm:text-lg">
+            Data obtained from the JMA (Japan Meteorological Agency) website.
+          </p>
+        </div>
+        <WeatherReloadButton
+          label="Reload All"
+          isLoading={refreshing}
+          onReload={handleReload}
+        />
       </section>
 
-      <WeatherCards
-        results={initialData}
-        refreshingCodes={refreshingCodes}
-        onReload={handleReload}
-      />
+      <WeatherCards results={forecasts} />
     </main>
   )
 }

@@ -16,5 +16,5 @@ function WeatherRouteComponent() {
 
   if (!data) return null
 
-  return <WeatherPage initialData={data} />
+  return <WeatherPage forecasts={data} />
 }
