@@ -127,7 +127,7 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
   const { title, time, url, by, score, descendants } = data
 
   return (
-    <div className={`py-4 border-b border-[var(--line)] last:border-b-0 transition-opacity duration-200 ${isLoading ? 'opacity-50' : ''}`}>
+    <div className={`py-4 border-b border-(--line) last:border-b-0 transition-opacity duration-200 ${isLoading ? 'opacity-50' : ''}`}>
       <div className="flex items-start gap-2 mb-1.5">
         <button 
           onClick={handleReload}
