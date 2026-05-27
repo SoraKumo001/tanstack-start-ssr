@@ -1,5 +1,3 @@
-
-
 export interface SimpleProps {
   data: string
 }

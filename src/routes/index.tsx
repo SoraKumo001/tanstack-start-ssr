@@ -13,8 +13,9 @@ function App() {
           SSR Samples for TanStack Start
         </h1>
         <p className="mb-8 max-w-2xl text-base text-(--sea-ink-soft) sm:text-lg">
-          This project demonstrates Server-Side Rendering (SSR) in TanStack Start, 
-          rebuilding the exact same components and behavior from the Next.js <code>next-ssr</code> project.
+          This project demonstrates Server-Side Rendering (SSR) in TanStack
+          Start, rebuilding the exact same components and behavior from the
+          Next.js <code>next-ssr</code> project.
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
@@ -36,12 +37,26 @@ function App() {
 
       {/* Samples Section */}
       <section className="mt-8">
-        <h2 className="text-2xl font-bold text-(--sea-ink) mb-4">Available Samples</h2>
+        <h2 className="text-2xl font-bold text-(--sea-ink) mb-4">
+          Available Samples
+        </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            ['/news', 'News Sample', 'Hacker News API implementation with custom page sizes and individual story reload.'],
-            ['/weather', 'Weather Sample', 'JMA weather forecast data. Showcases multiple concurrent fetches on server.'],
-            ['/simple', 'Simple Sample', 'A minimal Hello World page loaded asynchronously on the server.'],
+            [
+              '/news',
+              'News Sample',
+              'Hacker News API implementation with custom page sizes and individual story reload.',
+            ],
+            [
+              '/weather',
+              'Weather Sample',
+              'JMA weather forecast data. Showcases multiple concurrent fetches on server.',
+            ],
+            [
+              '/simple',
+              'Simple Sample',
+              'A minimal Hello World page loaded asynchronously on the server.',
+            ],
           ].map(([to, title, desc]) => (
             <Link
               key={to}
@@ -50,7 +65,9 @@ function App() {
             >
               <h3 className="mb-2 text-base font-bold text-(--sea-ink) group-hover:text-(--lagoon-deep) flex items-center justify-between">
                 <span>{title}</span>
-                <span className="text-xs border border-(--chip-line) bg-(--chip-bg) rounded-full px-2.5 py-0.5 text-(--sea-ink-soft) font-mono">{to}</span>
+                <span className="text-xs border border-(--chip-line) bg-(--chip-bg) rounded-full px-2.5 py-0.5 text-(--sea-ink-soft) font-mono">
+                  {to}
+                </span>
               </h3>
               <p className="m-0 text-sm text-(--sea-ink-soft)">{desc}</p>
             </Link>
@@ -61,7 +78,13 @@ function App() {
       <section className="island-shell mt-8 rounded-2xl p-6">
         <p className="island-kicker mb-2">Technical Overview</p>
         <p className="text-sm text-(--sea-ink-soft) leading-relaxed m-0">
-          In TanStack Start, SSR works seamlessly by using route loaders. Unlike the original <code>next-ssr</code> which relied on react hooks resolving synchronously on server-side rendering passes, TanStack Start uses a clean, standard <code>loader</code> pattern. We fetch all initial data before rendering, and then instantiate components with that pre-fetched data, supporting individual client-side reloads and UI feedback states.
+          In TanStack Start, SSR works seamlessly by using route loaders. Unlike
+          the original <code>next-ssr</code> which relied on react hooks
+          resolving synchronously on server-side rendering passes, TanStack
+          Start uses a clean, standard <code>loader</code> pattern. We fetch all
+          initial data before rendering, and then instantiate components with
+          that pre-fetched data, supporting individual client-side reloads and
+          UI feedback states.
         </p>
       </section>
     </main>

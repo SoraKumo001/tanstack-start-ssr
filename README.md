@@ -41,6 +41,7 @@ pnpm run deploy
 This project has removed the complex React Server Components (RSC) configurations, opting for a simpler, highly-stable SSR solution using the **`react-query-ssr`** package.
 
 #### Key Mechanics:
+
 - **Wrapped with `SSRProvider`**:  
   In `src/routes/__root.tsx`, the entire application tree is wrapped under `<QueryClientProvider>` and `<SSRProvider>`. This automatically serializes the data fetched on the server and transfers the state seamlessly to the client side.
 - **Seamless Fetching with `enableSSR`**:  
@@ -57,6 +58,7 @@ A paginated Hacker News demonstration.
 - **Server Function (`src/components/pages/news.tsx`)**:
   `newsLoaderServer` is created via `createServerFn` and handles fetching the paginated news data on the server side.
 - **Route & Data Loading (`src/routes/news.tsx`)**:
+
   ```tsx
   const { page } = Route.useSearch()
   const currentPage = page || 1
@@ -67,6 +69,7 @@ A paginated Hacker News demonstration.
     queryFn: () => newsLoaderServer({ data: { page: currentPage } }),
   })
   ```
+
   Spreading `enableSSR` inside `useQuery` ensures that data for the requested page is pre-fetched on the server during the initial render.
 
 ---
@@ -103,5 +106,7 @@ To perform fast client-side SPA navigations, use the `Link` component from `@tan
 ```tsx
 import { Link } from '@tanstack/react-router'
 
-<Link to="/news" search={{ page: 1 }}>Read News</Link>
+;<Link to="/news" search={{ page: 1 }}>
+  Read News
+</Link>
 ```
