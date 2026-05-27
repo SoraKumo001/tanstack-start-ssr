@@ -1,217 +1,107 @@
-Welcome to your new TanStack Start app! 
+# TanStack Start SSR & React Query SSR Project
 
-# Getting Started
+This project is built on **TanStack Start** (SSR) and **TanStack Router**, utilizing **`react-query-ssr`** to achieve Server-Side Rendering (SSR) and client hydration directly within components without using router `loader`s.
 
-To run this application:
+---
 
-```bash
-npm install
-npm run dev
-```
+## 🚀 Getting Started
 
-# Building For Production
+### Run the Development Server
 
-To build this application for production:
+Install dependencies and start the local development server:
 
 ```bash
-npm run build
+pnpm install
+pnpm run dev
 ```
 
-## Testing
+### Build for Production
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Run typescript check and build for production:
 
 ```bash
-npm run test
+pnpm run typecheck
+pnpm run build
 ```
 
-## Styling
+### Deploy to Cloudflare Workers
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `npm install @tailwindcss/vite tailwindcss -D`
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+This project is pre-configured and optimized for deployment to Cloudflare Workers:
 
 ```bash
-npm run lint
-npm run format
-npm run check
+pnpm run deploy
 ```
 
+---
 
-## Deploy to Cloudflare Workers
+## 🛠️ Tech Stack & Architecture Explanation
 
-This project uses the Cloudflare Vite plugin (configured in `vite.config.ts`) and `wrangler.jsonc`:
+### 1. Removing RSC in favor of React Query SSR
 
-1. Install Wrangler: `npm install -g wrangler`
-2. Authenticate: `wrangler login`
-3. Deploy: `npx wrangler deploy`
+This project has removed the complex React Server Components (RSC) configurations, opting for a simpler, highly-stable SSR solution using the **`react-query-ssr`** package.
 
-For production env vars, run `wrangler secret put MY_VAR` for each secret listed in `.env.example`. Public (non-secret) vars go in `wrangler.jsonc` under `vars`.
+#### Key Mechanics:
+- **Wrapped with `SSRProvider`**:  
+  In `src/routes/__root.tsx`, the entire application tree is wrapped under `<QueryClientProvider>` and `<SSRProvider>`. This automatically serializes the data fetched on the server and transfers the state seamlessly to the client side.
+- **Seamless Fetching with `enableSSR`**:  
+  By spreading the `enableSSR` options within the `useQuery` hooks inside components, queries are automatically evaluated and fetched on the server side during SSR. The client hydrates this state without doing duplicate fetches, eliminating the need to write router `loader` functions.
 
-KV, D1, R2, and Durable Object bindings are configured in `wrangler.jsonc` — see https://developers.cloudflare.com/workers/wrangler/configuration/.
+---
 
+## 📂 Codebase Overview & Key Features
 
+### 📰 News Page (`/news`)
 
-## Routing
+A paginated Hacker News demonstration.
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+- **Server Function (`src/components/pages/news.tsx`)**:
+  `newsLoaderServer` is created via `createServerFn` and handles fetching the paginated news data on the server side.
+- **Route & Data Loading (`src/routes/news.tsx`)**:
+  ```tsx
+  const { page } = Route.useSearch()
+  const currentPage = page || 1
 
-### Adding A Route
+  const { data } = useQuery({
+    ...enableSSR,
+    queryKey: ['news', currentPage],
+    queryFn: () => newsLoaderServer({ data: { page: currentPage } }),
+  })
+  ```
+  Spreading `enableSSR` inside `useQuery` ensures that data for the requested page is pre-fetched on the server during the initial render.
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
+---
 
-TanStack will automatically generate the content of the route file for you.
+### 🌤️ Weather Forecast Page (`/weather`)
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+A Japanese Meteorological Agency (JMA) weather forecasting demonstration.
 
-### Adding Links
+- **Server Function (`src/components/pages/weather.tsx`)**:
+  `weatherLoader` is a server function that asynchronously fetches weather overview data from the JMA API for multiple areas (Tokyo, Kanagawa, etc.) at once.
+- **Route & Data Loading (`src/routes/weather.tsx`)**:
+  ```tsx
+  const { data } = useQuery({
+    ...enableSSR,
+    queryKey: ['weather'],
+    queryFn: () => weatherLoader(),
+  })
+  ```
+  Just like the news page, combining `useQuery` and `enableSSR` creates a fully SSR-rendered HTML shell for the user. When users trigger the individual reload button, the query refetches on the client side to update specific items cleanly.
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+---
+
+## 📝 Developer Guide
+
+### Adding New Routes
+
+TanStack Router utilizes file-based routing.
+When you add new `.tsx` files inside `src/routes/`, the route tree definitions (`src/routeTree.gen.ts`) are automatically updated and compiled.
+
+### SPA Navigation (Linking)
+
+To perform fast client-side SPA navigations, use the `Link` component from `@tanstack/react-router`.
 
 ```tsx
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router'
+
+<Link to="/news" search={{ page: 1 }}>Read News</Link>
 ```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).

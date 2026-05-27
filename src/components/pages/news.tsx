@@ -38,44 +38,49 @@ export const newsListFetchServer = createServerFn({ method: 'GET' })
     return new Promise<number[]>((resolve) => setTimeout(() => resolve(data), FETCH_WAIT))
   })
 
-export const newsLoader = async (page: number) => {
-  try {
-    const allIds = await newsListFetchServer()
-    const maxPage = Math.max(1, Math.floor(allIds.length / PAGE_SIZE))
-    const currentPage = Math.min(Math.max(1, page), maxPage)
-    const targetIds = allIds.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-    
-    const newsItems = await Promise.all(
-      targetIds.map(async (id) => {
-        try {
-          const item = await newsFetchServer({ data: id })
-          return { id, data: item, error: null }
-        } catch (e) {
-          return { id, data: null, error: (e as Error).message }
-        }
-      })
-    )
+export const newsLoaderServer = createServerFn({ method: 'GET' })
+  .inputValidator((input: { page: number }) => input)
+  .handler(async ({ data: { page } }) => {
+    try {
+      const allIds = await newsListFetchServer()
+      const maxPage = Math.max(1, Math.floor(allIds.length / PAGE_SIZE))
+      const currentPage = Math.min(Math.max(1, page), maxPage)
+      const targetIds = allIds.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+      
+      const newsItems = await Promise.all(
+        targetIds.map(async (id) => {
+          try {
+            const item = await newsFetchServer({ data: id })
+            return { id, data: item, error: null }
+          } catch (e) {
+            return { id, data: null, error: (e as Error).message }
+          }
+        })
+      )
 
-    return {
-      newsItems,
-      totalStories: allIds.length,
-      currentPage,
-      maxPage
+      return {
+        newsItems,
+        totalStories: allIds.length,
+        currentPage,
+        maxPage
+      }
+    } catch (e) {
+      return {
+        newsItems: [],
+        totalStories: 0,
+        currentPage: page,
+        maxPage: 1,
+        error: (e as Error).message
+      }
     }
-  } catch (e) {
-    return {
-      newsItems: [],
-      totalStories: 0,
-      currentPage: page,
-      maxPage: 1,
-      error: (e as Error).message
-    }
-  }
-}
+  })
+
 
 export interface NewsPageProps {
-  initialData: Awaited<ReturnType<typeof newsLoader>>
+  initialData: Awaited<ReturnType<typeof newsLoaderServer>>
   page: number
+  onReload?: () => Promise<void>
+  isRefreshing?: boolean
 }
 
 function NewsCard({ id, initialData, initialError }: { id: number; initialData: NewsType | null; initialError: string | null }) {
@@ -147,14 +152,15 @@ function NewsCard({ id, initialData, initialError }: { id: number; initialData: 
   )
 }
 
-export default function NewsPage({ initialData, page }: NewsPageProps) {
+export default function NewsPage({ initialData, page, onReload, isRefreshing }: NewsPageProps) {
   const router = useRouter()
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const handleReloadAll = async () => {
-    setIsRefreshing(true)
-    await router.invalidate()
-    setIsRefreshing(false)
+    if (onReload) {
+      await onReload()
+    } else {
+      await router.invalidate()
+    }
   }
 
   const navigateToPage = (newPage: number) => {
@@ -165,6 +171,7 @@ export default function NewsPage({ initialData, page }: NewsPageProps) {
   }
 
   const { newsItems, maxPage, error } = initialData
+  const refreshing = isRefreshing ?? (router.state.status === 'pending')
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
@@ -181,10 +188,10 @@ export default function NewsPage({ initialData, page }: NewsPageProps) {
         <div className="flex items-center gap-2">
           <button 
             onClick={handleReloadAll}
-            disabled={isRefreshing}
+            disabled={refreshing}
             className="rounded-full bg-[rgba(79,184,178,0.12)] border border-[rgba(50,143,151,0.25)] px-4 py-2 text-sm font-semibold text-[var(--lagoon-deep)] transition hover:bg-[rgba(79,184,178,0.22)] disabled:opacity-50"
           >
-            {isRefreshing ? 'Reloading...' : 'Reload All'}
+            {refreshing ? 'Reloading...' : 'Reload All'}
           </button>
           
           <div className="flex items-center gap-1 border border-[var(--line)] rounded-full bg-[var(--chip-bg)] p-1">

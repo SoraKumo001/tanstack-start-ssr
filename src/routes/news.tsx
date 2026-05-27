@@ -1,5 +1,7 @@
-import { createFileRoute, useLoaderData } from '@tanstack/react-router'
-import NewsPage, { newsLoader } from '../components/pages/news'
+import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { enableSSR } from 'react-query-ssr'
+import NewsPage, { newsLoaderServer } from '../components/pages/news'
 
 type NewsSearch = {
   page?: number
@@ -11,15 +13,19 @@ export const Route = createFileRoute('/news')({
       page: Number(search.page) || 1,
     }
   },
-  loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: async ({ deps: { page } }) => {
-    return await newsLoader(page || 1)
-  },
   component: NewsRouteComponent,
 })
 
 function NewsRouteComponent() {
-  const initialData = useLoaderData({ from: '/news' })
   const { page } = Route.useSearch()
-  return <NewsPage initialData={initialData} page={page || 1} />
+  const currentPage = page || 1
+  const { data } = useQuery({
+    ...enableSSR,
+    queryKey: ['news', currentPage],
+    queryFn: () => newsLoaderServer({ data: { page: currentPage } }),
+  })
+
+  if (!data) return null
+
+  return <NewsPage initialData={data} page={currentPage} />
 }

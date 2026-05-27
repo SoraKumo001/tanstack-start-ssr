@@ -1,14 +1,20 @@
-import { createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { enableSSR } from 'react-query-ssr'
 import WeatherPage, { weatherLoader } from '../components/pages/weather'
 
 export const Route = createFileRoute('/weather')({
-  loader: async () => {
-    return await weatherLoader()
-  },
   component: WeatherRouteComponent,
 })
 
 function WeatherRouteComponent() {
-  const initialData = useLoaderData({ from: '/weather' })
-  return <WeatherPage initialData={initialData} />
+  const { data } = useQuery({
+    ...enableSSR,
+    queryKey: ['weather'],
+    queryFn: () => weatherLoader(),
+  })
+
+  if (!data) return null
+
+  return <WeatherPage initialData={data} />
 }

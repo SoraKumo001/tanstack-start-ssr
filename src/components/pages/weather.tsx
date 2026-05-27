@@ -1,11 +1,6 @@
 import { useState } from 'react'
-import type { ReactNode } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import {
-  CompositeComponent,
-  createCompositeComponent,
-} from '@tanstack/react-start/rsc'
 
 export interface WeatherType {
   publishingOffice: string
@@ -21,10 +16,6 @@ type WeatherResult = {
   code: number
   data: WeatherType | null
   error: string | null
-}
-
-type WeatherDataSlots = {
-  renderWeatherCards?: (data: { results: Array<WeatherResult> }) => ReactNode
 }
 
 export const fetchWeatherServer = createServerFn({ method: 'GET' })
@@ -53,21 +44,14 @@ const fetchWeatherResults = async (): Promise<Array<WeatherResult>> => {
   )
 }
 
-export const getWeatherCardsServer = createServerFn({ method: 'GET' }).handler(
+export const getWeatherDataServer = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const results = await fetchWeatherResults()
-    const weatherCards = await createCompositeComponent(
-      ({ renderWeatherCards }: WeatherDataSlots) => (
-        <>{renderWeatherCards?.({ results })}</>
-      ),
-    )
-
-    return { weatherCards }
+    return await fetchWeatherResults()
   },
 )
 
 export const weatherLoader = async () => {
-  return await getWeatherCardsServer()
+  return await getWeatherDataServer()
 }
 
 export interface WeatherProps {
@@ -210,19 +194,13 @@ export default function WeatherPage({ initialData }: WeatherProps) {
         </h1>
         <p className="text-base text-[var(--sea-ink-soft)] sm:text-lg">
           Data obtained from the JMA (Japan Meteorological Agency) website.
-          (React Server Component + client-side refresh)
         </p>
       </section>
 
-      <CompositeComponent
-        src={initialData.weatherCards}
-        renderWeatherCards={({ results }) => (
-          <WeatherCards
-            results={results}
-            refreshingCodes={refreshingCodes}
-            onReload={handleReload}
-          />
-        )}
+      <WeatherCards
+        results={initialData}
+        refreshingCodes={refreshingCodes}
+        onReload={handleReload}
       />
     </main>
   )
